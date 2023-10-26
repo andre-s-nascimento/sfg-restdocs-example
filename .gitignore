@@ -140,3 +140,7 @@ Desktop.ini
 .eslintcache
 /.idea/
 
+/target/classes/application.properties
+/target/generated-sources/annotations/guru/springframework/sfgrestdocsexample/web/mappers/BeerMapperImpl.java
+/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
