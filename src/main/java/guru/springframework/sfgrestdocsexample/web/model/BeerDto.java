@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * Created by jt on 2019-05-12.
@@ -36,6 +37,7 @@ public class BeerDto {
     private OffsetDateTime lastModifiedDate;
 
     @NotBlank
+    @Length(min = 3, max = 100)
     private String beerName;
 
     @NotNull
@@ -49,6 +51,7 @@ public class BeerDto {
     @NotNull
     private BigDecimal price;
 
+    @Positive
     private Integer quantityOnHand;
 
 }
