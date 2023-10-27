@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 // import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -18,8 +19,10 @@ import guru.springframework.sfgrestdocsexample.repositories.BeerRepository;
 import guru.springframework.sfgrestdocsexample.web.model.BeerDto;
 import guru.springframework.sfgrestdocsexample.web.model.BeerStyleEnum;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +31,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.constraints.ConstraintDescriptions;
 import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.WebApplicationContext;
 
 @ExtendWith(RestDocumentationExtension.class)
 @AutoConfigureRestDocs(uriScheme = "https", uriHost = "dev.snascimento", uriPort = 80)
@@ -46,6 +52,13 @@ class BeerControllerTest {
 
   @MockBean BeerRepository beerRepository;
 
+  @BeforeEach
+  public void setUp(WebApplicationContext webApplicationContext,
+      RestDocumentationContextProvider restDocumentation) {
+    this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+        .apply(documentationConfiguration(restDocumentation)).build();
+  }
+
   @Test
   void getBeerById() throws Exception {
     given(beerRepository.findById(any())).willReturn(Optional.of(Beer.builder().build()));
@@ -58,17 +71,17 @@ class BeerControllerTest {
         .andExpect(status().isOk())
         .andDo(
             document(
-                "v1/beer",
+                "v1/beer-get",
                 responseFields(
-                    fieldWithPath("id").description("Id of Beer"),
-                    fieldWithPath("version").description("Version number"),
-                    fieldWithPath("createdDate").description("Date Created"),
-                    fieldWithPath("lastModifiedDate").description("Date Updated"),
-                    fieldWithPath("beerName").description("Beer Name"),
-                    fieldWithPath("beerStyle").description("Beer Style"),
-                    fieldWithPath("upc").description("UPC of Beer"),
-                    fieldWithPath("price").description("Price"),
-                    fieldWithPath("quantityOnHand").description("Quantity On hand")),
+                    fieldWithPath("id").description("Id of Beer").type(UUID.class),
+                    fieldWithPath("version").description("Version number").type(Integer.class),
+                    fieldWithPath("createdDate").description("Date Created").type(OffsetDateTime.class),
+                    fieldWithPath("lastModifiedDate").description("Date Updated").type(OffsetDateTime.class),
+                    fieldWithPath("beerName").description("Beer Name").type(String.class),
+                    fieldWithPath("beerStyle").description("Beer Style").type(BeerStyleEnum.class),
+                    fieldWithPath("upc").description("UPC of Beer").type(Long.class),
+                    fieldWithPath("price").description("Price").type(BigDecimal.class),
+                    fieldWithPath("quantityOnHand").description("Quantity On hand").type(Integer.class)),
                 queryParameters(
                     parameterWithName("iscold").description("Is Beer Cold Query param.")),
                 pathParameters(
@@ -87,7 +100,7 @@ class BeerControllerTest {
         .andExpect(status().isCreated())
         .andDo(
             document(
-                "v1/beer",
+                "v1/beer-new",
                 requestFields(
                     fields.withPath("id").ignored(),
                     fields.withPath("version").ignored(),
